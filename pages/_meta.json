@@ -1,0 +1,15 @@
+{
+  "index": "Introduction",
+  "solana": "Solana",
+  "astar": "Astar",
+  "about": {
+    "title": "About",
+    "type": "page"
+  },
+  "contact": {
+    "title": "Contact ↗",
+    "type": "page",
+    "href": "https://twitter.com/Kaushal_sol",
+    "newWindow": true
+  }
+}

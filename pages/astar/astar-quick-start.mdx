@@ -1,0 +1,76 @@
+import { Steps } from "nextra-theme-docs";
+
+# Astar API Quickstart
+How to get started building on Astar and use the JSON-RPC API
+
+## Getting Started Instructions
+
+<Steps>
+### Choose a package manager (npm or yarn)
+For this guide, you will be using npm or yarn as our package manager to install graux-sdk or other packages.
+
+### Set up your project (npm or yarn)
+
+**npm:** To get started with npm, follow the documentation to install Node.js and npm for your operating system: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+
+```js filename="Terminal (npm)" {4} copy
+  mkdir graux-solana-api
+  cd graux-solana-api
+  npm init --yes
+```
+
+**yarn:** To get started with yarn, follow these steps: https://classic.yarnpkg.com/lang/en/docs/install
+
+
+```js filename="Terminal (yarn)" {4} copy
+  mkdir graux-solana-api
+  cd graux-solana-api
+  yarn init --yes
+```
+
+### Install Graux-SDK (coming soon)
+
+Run the following command to install the Graux SDK with npm or yarn.
+
+```js filename="npm" {2} copy
+  npm install graux-sdk
+```
+```js filename="yarn" {2} copy
+  yarn add graux-sdk
+```
+
+### Make your first request
+
+You are all set now to use Astar API and make your first request. For instance, lets make a request to get latest 
+block. Create an index.js file and paste the following code snippet into the file.
+
+```js filename="Typescript" {17} copy
+  const { Network, Graux } = require("graux-sdk");
+
+  // Optional Config object, but defaults to demo api-key and astar-mainnet.
+  const settings = {
+      apiKey: "<demo-api-key>", // Replace with your Graux API Key.
+      network: Network.ASTAR_MAINNET, // Replace with your network.
+  };
+
+  const graux = new graux(settings);
+
+  async function main() {
+      const latestBlock = await graux.core.getBlockNumber();
+      console.log("The latest block number is", latestBlock);
+  }
+
+  main();
+```
+
+### Run script
+To run the above node script, use cmd ```node index.js```, and you should see the output.
+
+```js filename="Terminal" {2} copy
+  The latest slot number is 2472174
+```
+</Steps>
+
+## Astar Tutorials
+Comming soon! making tutorial to build your first Dapp on Astar and use Astar APIs?

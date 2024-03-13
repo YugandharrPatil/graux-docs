@@ -1,0 +1,131 @@
+import { Steps } from "nextra-theme-docs";
+
+# Solana API Quickstart
+Quickstart guide for building on Solana
+
+
+## Getting Started Instructions
+
+<Steps>
+###  Choose a package manager (npm or yarn)
+
+For this guide, you will be using npm or yarn as our package manager to install graux-sdk or other packages.
+
+
+### Set up your project (npm or yarn)
+
+**npm:** To get started with npm, follow the documentation to install Node.js and npm for your operating system: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+```js filename="Terminal (npm)" {4} copy
+  mkdir graux-solana-api
+  cd graux-solana-api
+  npm init --yes
+```
+
+**yarn:** To get started with yarn, follow these steps: https://classic.yarnpkg.com/lang/en/docs/install
+
+```js filename="Terminal (yarn)" {4} copy
+  mkdir graux-solana-api
+  cd graux-solana-api
+  yarn init --yes
+```
+
+### Install Solana Web3.js Library
+
+Run the following command to install the Solana Web3.js library with npm or yarn.
+
+```js filename="npm" {2} copy
+  npm install --save @solana/web3.js
+```
+```js filename="yarn" {2} copy
+  yarn add @solana/web3.js
+```
+
+### Make your first request
+You are all set now to use Solana API and make your first request. For instance, lets make a request 
+to get latest slot. Create an index.js file and paste the following code snippet into the file.
+
+``` js filename="index.js" {12} copy
+  const solanaWeb3 = require("@solana/web3.js");
+
+  const main = async () => {
+    rpc = "https://solana-mainnet.graux.com/v1/<Your-Graux-API-Key>"; // RPC URL for connecting with a Solana node
+    connection = new solanaWeb3.Connection(rpc, "confirmed"); // confirming the connection
+
+    let slot = await connection.getSlot(); // getting the most recent slot number
+    console.log("The latest slot number is", slot); // logging the most recent slot number
+  };
+
+  main();
+```
+
+### Run script
+To run the above node script, use cmd ```node index.js```, and you should see the output.
+
+```js filename="Terminal" {2} copy
+  The latest slot number is 174140717
+```
+
+</Steps>
+
+## For Solana RPC Requests, use Graux's AccountsDB Infrastructure!
+
+The getProgramAccounts and getLargestTokenAccounts methods on Solana can be quite expensive because they 
+require scanning accounts, which puts a heavy load on validator nodes. This often leads to long wait times 
+or even errors.
+
+To address this issue, Graux has developed an infrastructure called AccountsDB that sits on top of our 
+validator nodes. This infrastructure is designed to support these methods and provide faster, more scalable, 
+and more reliable responses. It achieves this by paginating the response with a pageKey, which enables you to 
+loop through the same request and aggregate the full response from our validator nodes.
+
+We have updated our Solana documentation to reflect this change, and you will now find that pageKey is an 
+optional parameter in each account-scanning method. Additionally, you can include an optional parameter to 
+sort the accounts in the response by their pubkey field.
+
+Here's an example with getProgramAccounts:
+```js filename="Typescript" {44} copy
+  const axios = require("axios");
+
+  function getProgramAccountsExample() {
+  let gPAExampleRequest = {
+    "method": "graux_getProgramAccounts",
+    "params": [
+      "ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD",
+      {
+        "encoding": "base64",
+        "withContext": true,
+        "order": "desc"
+      }
+    ],
+    "id": 0,
+    "jsonrpc": "2.0"
+  }
+  let programAccounts = []
+
+  const grauxRPCUrl = "https://solana-mainnet.graux.com/v1/<YOUR-API-KEY>"
+  try {
+    let response = await axios.post(url, gPAExampleRequest);
+    let responseData = response.data["result"]
+    
+    // continue aggregating if there's a new pageKey present in the latest response
+    while (responseData["pageKey"]) {
+      programAccounts = programAccounts.concat(responseData["value"]);
+      
+      // place the pagekey within the optional config object
+      // (you may need to create that config object if you didn't have it originally)
+      gPAExampleRequest["params"][1]["pageKey"] = responseData["pageKey"];
+      
+      // make another call to getProgramAccounts with the pageKey
+      response = await axios.post(url, gPAExampleRequest);
+      responseData = response.data["result"]
+    }
+
+      programAccounts = programAccounts.concat(responseData["value"]);
+      return programAccounts;
+    } catch (err) {
+      console.error(`Error in Response, Data is: ${err.data}`);
+      return [];
+    }
+  }
+```
